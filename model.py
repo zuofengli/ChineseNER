@@ -101,7 +101,7 @@ class Model(object):
             )
             backward_output = tf.reverse_sequence(backward_output, length64, seq_dim=1)
             # concat forward and backward outputs into a 2*hiddenSize vector
-            outputs = tf.concat(2, [forward_output, backward_output])
+            outputs = tf.concat([forward_output, backward_output], 2)
             lstm_features = tf.reshape(outputs, [-1, self.params.word_hidden_dim * 2])
             return lstm_features
 
