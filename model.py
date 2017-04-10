@@ -1,7 +1,8 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.crf import crf_log_likelihood, viterbi_decode
-from tensorflow.python.ops import rnn_cell
+#from tensorflow.python.ops import rnn_cell
+from tensorflow.contrib import rnn as rnn_cell
 from utils import get_logger, load_word2vec, calculate_accuracy
 from tensorflow.python.ops import init_ops
 
@@ -41,7 +42,7 @@ class Model(object):
         rnn_inputs = tf.nn.dropout(embedding, self.dropout)
         # concat extra features with embedding
         if self.params.feature_dim:
-            rnn_inputs = tf.concat(2, [rnn_inputs, self.features])
+            rnn_inputs = tf.concat([rnn_inputs, self.features], 2)
         # extract features
         rnn_features = self.bilstm_layer(rnn_inputs)
         # projection layer
@@ -115,7 +116,7 @@ class Model(object):
                 regularizer=tf.contrib.layers.l2_regularizer(0.001))
             b1 = tf.get_variable(
                 'b1', [tag_num])
-            scores = tf.batch_matmul(lstm_features, w1) + b1
+            scores = tf.matmul(lstm_features, w1) + b1
             scores = tf.reshape(scores, [-1, self.params.word_max_len, tag_num])
             return scores
 
