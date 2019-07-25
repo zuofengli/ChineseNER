@@ -182,7 +182,8 @@ class Model(object):
 
     def predict(self, sess, data):
         results = []
-        trans = self.trans.eval()
+        #trans = self.trans.eval()
+        trans = self.trans.eval(session=sess)
         for batch in data.iter_batch():
             tags = batch["tags"]
             lengths = batch["len"]
@@ -190,12 +191,23 @@ class Model(object):
             end_of_doc = batch["end_of_doc"]
             scores = self.run_step(sess, False, batch)
             batch_paths = self.decode(scores, lengths, trans)
+            
+
             for i in range(len(batch)):
+                print (i)
+                print (str_lines)
+                print(batch_paths)
+                print(tags)
+                print(lengths)
+                print(batch)
                 result = []
-                for char, gold, pred in zip(str_lines[i][:lengths[i]],
-                                            tags[i][:lengths[i]],
-                                            batch_paths[i][:lengths[i]]):
-                    result.append(" ".join([char, self.tags[int(gold)], self.tags[int(pred)]]))
-                results.append([result, end_of_doc[i]])
+                if i >= len(lengths):
+                    continue
+                else:
+                    for char, gold, pred in zip(str_lines[i][:lengths[i]],
+                                                tags[i][:lengths[i]],
+                                                batch_paths[i][:lengths[i]]):
+                        result.append(" ".join([char, self.tags[int(gold)], self.tags[int(pred)]]))
+                    results.append([result, end_of_doc[i]])
         return results
 
